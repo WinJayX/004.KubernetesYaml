@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: virtual-host-ingress
+  namespace: fz-common
+spec:
+  rules:
+
+  - host: vmc.service.dev.com
+    http:
+      paths:
+      - backend:
+          serviceName: fz-mediatranscoding-api
+          servicePort: 80

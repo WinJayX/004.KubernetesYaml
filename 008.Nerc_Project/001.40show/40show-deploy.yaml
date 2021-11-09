@@ -1,0 +1,91 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: deploy-40show
+  namespace: nerc-project
+  labels:
+    name: 40show-label
+    app: 40show-label
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: 40show-label
+      app: 40show-label
+  template:
+    metadata:
+      labels:
+        name: 40show-label
+        app: 40show-label
+    spec:
+      containers:
+      - name: 40show
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+        resources:
+          limits:
+            cpu: 20m
+            memory: 200Mi
+          requests:
+            memory: 30Mi
+            cpu: 10m
+
+        volumeMounts:
+        - name: vol-40show    #要与 Volumes 的 name 字段对应
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: vol-40show
+        persistentVolumeClaim:
+          claimName: pvc-40show   #claimName要与 pvc 的 name 字段对应
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-40show
+  namespace: nerc-project
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName: nfs-storage-class
+
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-40show
+  namespace: nerc-project
+spec:
+  selector:
+    name: 40show-label
+    app: 40show-label
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+#      nodePort: 8080
+#
+---
+#apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-40show
+  namespace: nerc-project
+spec:
+  rules:
+  - host: 40show.5minutes.com.cn
+    http:
+      paths:
+      - backend:
+          serviceName: svc-40show
+          servicePort: 80

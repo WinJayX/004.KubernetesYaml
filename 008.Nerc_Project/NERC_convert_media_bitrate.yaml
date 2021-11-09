@@ -1,0 +1,49 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: convert-media-bitrate-deployment
+  namespace: default
+  labels:
+    name: convert-media-bitrate
+    app: convert-media-bitrate-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: convert-media-bitrate
+      app: convert-media-bitrate-app
+  template:
+    metadata:
+      labels:
+        name: convert-media-bitrate
+        app: convert-media-bitrate-app
+    spec:
+      containers:
+      - name: media
+        image: harbor.nercoa.com/convert_media_bitrate/convert_media_bitrate:v1.0.7
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+        resources:
+          limits:
+            cpu: 20m
+            memory: 200Mi
+          requests:
+            memory: 30Mi
+            cpu: 10m
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: default
+  name: cmbr-svc
+spec:
+  selector:
+    name: convert-media-bitrate
+    app: convert-media-bitrate-app 
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+#      nodePort: 8080

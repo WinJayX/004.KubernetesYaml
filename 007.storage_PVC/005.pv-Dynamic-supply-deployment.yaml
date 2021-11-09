@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    app: nfs-client-provisioner
+  # replace with namespace where provisioner is deployed
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: winjay/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: fuseim.pri/ifs
+            - name: NFS_SERVER
+              value: 202.205.161.89
+               #Home Mac K8S Cluster
+               # value: 192.168.8.1
+            - name: NFS_PATH
+              value: /mnt/SharedStorage/002.NFS_Share/k8s/00.pvc
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            #Home Mac K8S Cluster            
+            #            server: 192.168.8.1
+            #            path: /opt/k8s-nfs
+            #work Server K8s Cluster
+            server: 202.205.161.89
+            path: /mnt/SharedStorage/002.NFS_Share/k8s/00.pvc

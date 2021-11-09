@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nacos-server-ingress
+  namespace: default
+spec:
+  rules:
+  - host: nacos.nercoa.com
+    http:
+      paths:
+      - backend:
+          serviceName: nacos-headless
+          servicePort: 8848
+        path: /

@@ -1,0 +1,14 @@
+root:
+  password: nerc.nerc/1
+  forcePassword: true
+replication:
+  enabled: false
+master:
+  namespace: monitoring
+  persistence:
+    storageClass: "nfs-storage-class"
+    size: 8Gi
+service:
+  type: NodePort
+  port: 3306
+  nodePort: 33060

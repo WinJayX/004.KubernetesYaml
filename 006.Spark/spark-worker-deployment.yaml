@@ -1,0 +1,33 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: spark-work-deployment
+  namespace: bigdata
+  labels:
+    name: spark-work
+    app: spark-app-work
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: spark-work
+      app: spark-app-work
+  template:
+    metadata:
+      labels:
+        name: spark-work
+        app: spark-app-work
+    spec:
+      nodeName: node11
+      containers:
+        - name: spark-worker
+          image: winjay/spark:3.0.1
+          imagePullPolicy: IfNotPresent
+          command: ["/start-worker"]
+          ports:
+            - containerPort: 8081
+          resources:
+            limits:
+              memory: 500Mi
+            requests:
+              cpu: 100m

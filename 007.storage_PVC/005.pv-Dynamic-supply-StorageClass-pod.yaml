@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-dynamic-supply-sc-demo
+spec:
+  containers:
+  - name: pv-sc
+    image: nginx
+#    command: ["bash","-c","tail -f /data/hello"]
+    volumeMounts:
+    - name: pv-dynamic-supply-sc-vol	#要与 Volumes 的 name 字段对应
+      mountPath: /usr/share/nginx/html
+
+  volumes:
+  - name: pv-dynamic-supply-sc-vol
+    persistentVolumeClaim:
+      claimName: pv-dynamic-supply-sc	#claimName要与 pvc 的 name 字段对应
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-dynamic-supply-sc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: managed-nfs-storage
+#  selector:
+#    matchLabels:
+#      release: "stable"
+#    matchExpressions:
+#      - {key: environment, operator: In, values: [dev]}
